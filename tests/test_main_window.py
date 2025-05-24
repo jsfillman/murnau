@@ -3,7 +3,7 @@
 import os
 import sys
 import threading
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from PyQt6.QtCore import Qt
@@ -116,7 +116,7 @@ class TestMurnauUIComponents:
         assert hasattr(window, "decay_slider_L")
         assert hasattr(window, "sustain_slider_L")
         assert hasattr(window, "release_slider_L")
-        
+
         # Right channel ADSR
         assert hasattr(window, "attack_slider_R")
         assert hasattr(window, "decay_slider_R")
@@ -177,11 +177,15 @@ class TestMurnauUIParameters:
 
         # Test attack change
         window.on_attack_L_change(0.1)
-        mock_client.send_message.assert_called_with("/legato_synth_stereo/attack_L", 0.1)
+        mock_client.send_message.assert_called_with(
+            "/legato_synth_stereo/attack_L", 0.1
+        )
 
         # Test cutoff change
         window.on_cutoff_L_change(1000)
-        mock_client.send_message.assert_called_with("/legato_synth_stereo/cutoff_L", 1000)
+        mock_client.send_message.assert_called_with(
+            "/legato_synth_stereo/cutoff_L", 1000
+        )
 
 
 class TestMurnauUIOSC:
@@ -296,7 +300,7 @@ class TestMurnauUIMIDI:
         qtbot.addWidget(window)
 
         # Should not raise exception and handle gracefully
-        assert hasattr(window, 'midi_port_combo')
+        assert hasattr(window, "midi_port_combo")
 
     @patch("src.murnau.ui.main_window.udp_client.SimpleUDPClient")
     @patch("src.murnau.ui.main_window.mido.open_input")
@@ -413,7 +417,7 @@ class TestMurnauUIStyles:
         qtbot.addWidget(window)
 
         style = window._get_combo_style()
-        
+
         # Check that style contains expected properties
         assert isinstance(style, str)
         assert len(style) > 0
@@ -425,7 +429,7 @@ class TestMurnauUIStyles:
         qtbot.addWidget(window)
 
         style = window._get_button_style()
-        
+
         # Check that style contains expected properties
         assert isinstance(style, str)
         assert len(style) > 0
@@ -460,8 +464,8 @@ class TestMurnauUIEvents:
         qtbot.addWidget(window)
 
         # Test toggle functionality exists
-        assert hasattr(window, 'toggle_midi')
-        
+        assert hasattr(window, "toggle_midi")
+
         # Should not raise exception when called
         window.toggle_midi()
 
@@ -483,7 +487,9 @@ class TestMurnauUIIntegration:
 
     @patch("src.murnau.ui.main_window.udp_client.SimpleUDPClient")
     @patch("src.murnau.ui.main_window.mido.get_input_names")
-    def test_ui_with_midi_initialization(self, mock_get_input_names, mock_udp_client, qtbot):
+    def test_ui_with_midi_initialization(
+        self, mock_get_input_names, mock_udp_client, qtbot
+    ):
         """Test UI creation with MIDI initialization"""
         mock_get_input_names.return_value = ["Test MIDI Port"]
 
@@ -491,7 +497,7 @@ class TestMurnauUIIntegration:
         qtbot.addWidget(window)
 
         # MIDI should be initialized
-        assert hasattr(window, 'midi_port_combo')
+        assert hasattr(window, "midi_port_combo")
 
     @patch("src.murnau.ui.main_window.udp_client.SimpleUDPClient")
     def test_parameter_initialization(self, mock_udp_client, qtbot):

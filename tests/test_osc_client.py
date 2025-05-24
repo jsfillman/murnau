@@ -98,7 +98,7 @@ class TestOSCClient:
         mock_udp_client.return_value = mock_client
 
         osc = OSCClient()
-        
+
         # Should raise exception (OSC client doesn't handle exceptions)
         with pytest.raises(Exception, match="Connection error"):
             osc.send("/test", 42)
@@ -111,7 +111,7 @@ class TestOSCClient:
         mock_udp_client.return_value = mock_client
 
         osc = OSCClient()
-        
+
         # Should raise exception (OSC client doesn't handle exceptions)
         with pytest.raises(Exception, match="Connection error"):
             osc.send_raw("/test", 42)
