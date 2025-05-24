@@ -1,0 +1,15 @@
+# Murnau Synthesizer Requirements
+# GUI Framework
+PyQt6>=6.0.0
+
+# MIDI Support
+mido>=1.2.0
+
+# OSC Communication
+python-osc>=1.7.0
+
+# Testing Dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-qt>=4.0.0
+pytest-mock>=3.8.0
