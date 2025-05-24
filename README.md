@@ -186,8 +186,6 @@ Murnau's design is inspired by the visual language of German Expressionist cinem
 - **Dramatic Lighting**: Gold and amber highlights against shadow
 - **Emotional Expression**: Controls that feel alive and responsive
 
-![Murnau UI](assets/images/Murnau-App.png)
-
 ## Requirements
 
 - macOS, Linux, or Windows
@@ -205,11 +203,7 @@ Murnau's design is inspired by the visual language of German Expressionist cinem
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
 
-## License
+---
 
-[Your license here]
+![Murnau UI](assets/images/Murnau-App.png)
 
-## Credits
-
-Created by [Your name]
-Inspired by the cinematic works of F.W. Murnau and the German Expressionist movement.
