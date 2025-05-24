@@ -3,10 +3,17 @@
 import math
 
 from PyQt6.QtCore import QSize, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import (QBrush, QColor, QFont, QLinearGradient, QPainter,
-                         QPalette, QPen)
-from PyQt6.QtWidgets import (QDial, QFrame, QHBoxLayout, QLabel, QPushButton,
-                             QSlider, QVBoxLayout, QWidget)
+from PyQt6.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter, QPalette, QPen
+from PyQt6.QtWidgets import (
+    QDial,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class CustomDial(QDial):

@@ -7,9 +7,20 @@ import time
 import mido
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QDoubleValidator, QFont, QIcon, QPixmap
-from PyQt6.QtWidgets import (QCheckBox, QComboBox, QFrame, QGridLayout,
-                             QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-                             QMainWindow, QPushButton, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 from pythonosc import udp_client
 
 from .widgets import LabeledKnob, PianoKeys, WaveformSelector

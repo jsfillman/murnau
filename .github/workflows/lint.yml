@@ -28,7 +28,7 @@ jobs:
       run: black --check --diff src/ tests/ scripts/
 
     - name: Check import sorting with isort
-      run: isort --check-only --diff src/ tests/ scripts/
+      run: isort --profile black --check-only --diff src/ tests/ scripts/
 
     - name: Lint with flake8
       run: flake8 src/ tests/ scripts/ --max-line-length=88 --extend-ignore=E203,W503,E402,F401,F841
