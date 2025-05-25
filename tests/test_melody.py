@@ -288,7 +288,7 @@ class TestMelodyData:
         ]
 
         # We need to access the melody from the play_melody function context
-        # Since it's defined within play_melody(), we test it indirectly through the calls
+        # Since it's defined within play_melody(), we test it indirectly through calls
         with patch("src.murnau.synth.melody.play_note") as mock_play_note, patch(
             "src.murnau.synth.melody.init_synth"
         ), patch("src.murnau.synth.melody.midi_to_freq") as mock_midi_to_freq, patch(

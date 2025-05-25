@@ -148,16 +148,16 @@ class TestTestRamp:
         first_gate_on_idx = None
         first_gate_off_idx = None
 
-        for i, call in enumerate(all_calls):
-            if call[0] == (f"/{synth_name}/cutoff_R", 5000):  # Last init message
+        for i, call_info in enumerate(all_calls):
+            if call_info[0] == (f"/{synth_name}/cutoff_R", 5000):  # Last init message
                 init_done_idx = i
-            elif call[0] == (f"/{synth_name}/start_freq", 220):  # First test start freq
+            elif call_info[0] == (f"/{synth_name}/start_freq", 220):  # First test
                 if first_start_freq_idx is None:
                     first_start_freq_idx = i
-            elif call[0] == (f"/{synth_name}/gate", 1.0):  # First gate on
+            elif call_info[0] == (f"/{synth_name}/gate", 1.0):  # First gate on
                 if first_gate_on_idx is None:
                     first_gate_on_idx = i
-            elif call[0] == (f"/{synth_name}/gate", 0.0):  # First gate off
+            elif call_info[0] == (f"/{synth_name}/gate", 0.0):  # First gate off
                 if first_gate_off_idx is None:
                     first_gate_off_idx = i
 
@@ -267,7 +267,7 @@ class TestTestScenarios:
 
     def test_scenario_data_types(self):
         """Test that scenario data has correct types"""
-        # Since the test scenarios are defined in test_ramp(), we verify through execution
+        # Since test scenarios are defined in test_ramp(), verify through execution
         with patch("time.sleep"), patch(
             "pythonosc.udp_client.SimpleUDPClient"
         ) as mock_client_class:
@@ -285,9 +285,9 @@ class TestTestScenarios:
                 if f"/{synth_name}/start_freq" in call[0]
             ]
 
-            for call in start_freq_calls:
-                assert isinstance(call[0][1], (int, float))
-                assert call[0][1] > 0
+            for call_info in start_freq_calls:
+                assert isinstance(call_info[0][1], (int, float))
+                assert call_info[0][1] > 0
 
 
 class TestIntegration:
