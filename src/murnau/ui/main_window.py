@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QPushButton,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -117,47 +118,105 @@ class MurnauUI(QMainWindow):
 
         top_section.addLayout(left_column)
 
-        # Right side - Controls
-        right_section = QHBoxLayout()
+        # Right side - Controls in tabs
+        right_section = QVBoxLayout()
+        
+        # Create tab widget for controls
+        control_tabs = QTabWidget()
+        control_tabs.setStyleSheet("""
+            QTabWidget::pane {
+                border: 1px solid #3A3A3A;
+                background-color: #1A1A1A;
+            }
+            QTabBar::tab {
+                background-color: #2A2A2A;
+                color: #E0E0E0;
+                padding: 8px 16px;
+                margin-right: 2px;
+                border: 1px solid #3A3A3A;
+                border-bottom: none;
+            }
+            QTabBar::tab:selected {
+                background-color: #5D5236;
+                color: #FFFFFF;
+                border-color: #D4BF8A;
+            }
+            QTabBar::tab:hover {
+                background-color: #3A3A3A;
+            }
+        """)
+
+        # Tab 1: Synthesis (Pitch + Filter + ADSR)
+        synth_tab = QWidget()
+        synth_layout = QHBoxLayout(synth_tab)
 
         # Pitch control section
         pitch_group = QGroupBox("Pitch Controls")
         pitch_layout = QVBoxLayout()
-
-        # Create pitch controls
         self._create_pitch_controls(pitch_layout)
-
         pitch_group.setLayout(pitch_layout)
-        right_section.addWidget(pitch_group)
+        synth_layout.addWidget(pitch_group)
 
         # Filter section
         filter_group = QGroupBox("Filter")
         filter_layout = QVBoxLayout()
-
-        # Create filter controls
         self._create_filter_controls(filter_layout)
-
         filter_group.setLayout(filter_layout)
-        right_section.addWidget(filter_group)
+        synth_layout.addWidget(filter_group)
 
         # ADSR knobs (Dual)
         adsr_group = QGroupBox("Envelope")
         adsr_layout = QVBoxLayout()
-
-        # Create ADSR controls
         self._create_adsr_controls(adsr_layout)
-
         adsr_group.setLayout(adsr_layout)
-        right_section.addWidget(adsr_group)
+        synth_layout.addWidget(adsr_group)
 
-        # Gain knob
+        control_tabs.addTab(synth_tab, "Synthesis")
+
+        # Tab 2: Effects (Delay)
+        effects_tab = QWidget()
+        effects_layout = QVBoxLayout(effects_tab)
+        effects_layout.setSpacing(8)
+        effects_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Delay section with better organization
+        delay_group = QGroupBox("3-Tap Delay")
+        delay_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #5D5236;
+                border-radius: 8px;
+                margin-top: 8px;
+                padding-top: 8px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+                color: #D4BF8A;
+            }
+        """)
+        delay_layout = QVBoxLayout()
+        delay_layout.setSpacing(8)
+        delay_layout.setContentsMargins(10, 10, 10, 10)
+        self._create_delay_controls(delay_layout)
+        delay_group.setLayout(delay_layout)
+        effects_layout.addWidget(delay_group)
+        
+        # Reduce stretch to minimize blank space
+        effects_layout.addStretch(1)
+
+        control_tabs.addTab(effects_tab, "Effects")
+
+        # Add tabs to right section
+        right_section.addWidget(control_tabs)
+        
+        # Gain knob - always visible
         gain_group = QGroupBox("Output")
         gain_layout = QHBoxLayout()
-
         self.gain_slider = LabeledKnob("Gain", 0.0, 1.0, 1.0, midi_cc=7)
         self.gain_slider.valueChanged.connect(self.on_gain_change)
         gain_layout.addWidget(self.gain_slider)
-
         gain_group.setLayout(gain_layout)
         right_section.addWidget(gain_group)
 
@@ -181,8 +240,11 @@ class MurnauUI(QMainWindow):
         keyboard_group.setLayout(keyboard_layout)
         main_layout.addWidget(keyboard_group)
 
-        # Set window size
-        self.resize(800, 600)
+        # Set window size - optimized for both Synthesis and Effects tabs
+        self.resize(1250, 960)
+        
+        # Set minimum size to ensure usability
+        self.setMinimumSize(1200, 650)
 
         # Initialize MIDI
         self.init_midi()
@@ -365,6 +427,263 @@ class MurnauUI(QMainWindow):
         right_adsr_group.setLayout(right_adsr_layout)
         layout.addWidget(right_adsr_group)
 
+    def _create_delay_controls(self, layout):
+        """Create delay control widgets"""
+        # Master enable controls - match synthesis spacing
+        enable_layout = QHBoxLayout()
+        enable_layout.setSpacing(50)
+        
+        self.delay_L_enable = QCheckBox("Enable Left")
+        self.delay_L_enable.setStyleSheet("""
+            QCheckBox {
+                color: #E0E0E0;
+                font-weight: bold;
+                font-size: 12px;
+                spacing: 5px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #5D5236;
+                border: 2px solid #D4BF8A;
+            }
+        """)
+        self.delay_L_enable.stateChanged.connect(self.on_delay_L_enable_change)
+        enable_layout.addWidget(self.delay_L_enable)
+        
+        self.delay_R_enable = QCheckBox("Enable Right")
+        self.delay_R_enable.setStyleSheet("""
+            QCheckBox {
+                color: #E0E0E0;
+                font-weight: bold;
+                font-size: 12px;
+                spacing: 5px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #5D5236;
+                border: 2px solid #D4BF8A;
+            }
+        """)
+        self.delay_R_enable.stateChanged.connect(self.on_delay_R_enable_change)
+        enable_layout.addWidget(self.delay_R_enable)
+        
+        enable_layout.addStretch()
+        layout.addLayout(enable_layout)
+        
+        # Channel controls side by side - match synthesis spacing
+        channels_layout = QHBoxLayout()
+        channels_layout.setSpacing(20)
+        
+        # Left channel delay
+        left_delay_group = QGroupBox("Left Channel")
+        left_delay_group.setStyleSheet("""
+            QGroupBox {
+                border: 1px solid #3A3A3A;
+                border-radius: 5px;
+                margin-top: 8px;
+                padding-top: 8px;
+                background-color: #1E1E1E;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 8px;
+                padding: 0 3px 0 3px;
+                color: #C0C0C0;
+            }
+        """)
+        left_delay_layout = QVBoxLayout()
+        left_delay_layout.setSpacing(10)
+        
+        # Taps in organized grid - match synthesis spacing
+        left_taps_layout = QGridLayout()
+        left_taps_layout.setSpacing(10)
+        
+        # Headers
+        time_header = QLabel("Time (ms)")
+        time_header.setStyleSheet("color: #D4BF8A; font-weight: bold;")
+        time_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        left_taps_layout.addWidget(time_header, 0, 1)
+        
+        level_header = QLabel("Level")
+        level_header.setStyleSheet("color: #D4BF8A; font-weight: bold;")
+        level_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        left_taps_layout.addWidget(level_header, 0, 2)
+        
+        # Tap 1
+        tap1_label = QLabel("Tap 1:")
+        tap1_label.setStyleSheet("color: #E0E0E0;")
+        left_taps_layout.addWidget(tap1_label, 1, 0)
+        
+        self.delay_L_tap1_time = LabeledKnob("T1", 0, 2000, 125, midi_cc=80)
+        self.delay_L_tap1_time.valueChanged.connect(self.on_delay_L_tap1_time_change)
+        self.delay_L_tap1_time.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap1_time, 1, 1)
+        
+        self.delay_L_tap1_level = LabeledKnob("L1", 0, 1, 0.3, midi_cc=81)
+        self.delay_L_tap1_level.valueChanged.connect(self.on_delay_L_tap1_level_change)
+        self.delay_L_tap1_level.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap1_level, 1, 2)
+        
+        # Tap 2
+        tap2_label = QLabel("Tap 2:")
+        tap2_label.setStyleSheet("color: #E0E0E0;")
+        left_taps_layout.addWidget(tap2_label, 2, 0)
+        
+        self.delay_L_tap2_time = LabeledKnob("T2", 0, 2000, 250, midi_cc=82)
+        self.delay_L_tap2_time.valueChanged.connect(self.on_delay_L_tap2_time_change)
+        self.delay_L_tap2_time.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap2_time, 2, 1)
+        
+        self.delay_L_tap2_level = LabeledKnob("L2", 0, 1, 0.2, midi_cc=83)
+        self.delay_L_tap2_level.valueChanged.connect(self.on_delay_L_tap2_level_change)
+        self.delay_L_tap2_level.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap2_level, 2, 2)
+        
+        # Tap 3
+        tap3_label = QLabel("Tap 3:")
+        tap3_label.setStyleSheet("color: #E0E0E0;")
+        left_taps_layout.addWidget(tap3_label, 3, 0)
+        
+        self.delay_L_tap3_time = LabeledKnob("T3", 0, 2000, 500, midi_cc=84)
+        self.delay_L_tap3_time.valueChanged.connect(self.on_delay_L_tap3_time_change)
+        self.delay_L_tap3_time.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap3_time, 3, 1)
+        
+        self.delay_L_tap3_level = LabeledKnob("L3", 0, 1, 0.1, midi_cc=85)
+        self.delay_L_tap3_level.valueChanged.connect(self.on_delay_L_tap3_level_change)
+        self.delay_L_tap3_level.setFixedSize(70, 100)  # Match synthesis knob size
+        left_taps_layout.addWidget(self.delay_L_tap3_level, 3, 2)
+        
+        left_delay_layout.addLayout(left_taps_layout)
+        
+        # Feedback and Mix controls - match synthesis spacing
+        left_controls_layout = QHBoxLayout()
+        left_controls_layout.setSpacing(10)
+        
+        self.delay_L_feedback = LabeledKnob("FB", 0, 0.95, 0.2, midi_cc=86)
+        self.delay_L_feedback.valueChanged.connect(self.on_delay_L_feedback_change)
+        self.delay_L_feedback.setFixedSize(70, 100)  # Match synthesis knob size
+        left_controls_layout.addWidget(self.delay_L_feedback)
+        
+        self.delay_L_mix = LabeledKnob("Mix", 0, 1, 0.3, midi_cc=87)
+        self.delay_L_mix.valueChanged.connect(self.on_delay_L_mix_change)
+        self.delay_L_mix.setFixedSize(70, 100)  # Match synthesis knob size
+        left_controls_layout.addWidget(self.delay_L_mix)
+        
+        left_controls_layout.addStretch()
+        left_delay_layout.addLayout(left_controls_layout)
+        left_delay_group.setLayout(left_delay_layout)
+        channels_layout.addWidget(left_delay_group)
+        
+        # Right channel delay (similar structure)
+        right_delay_group = QGroupBox("Right Channel")
+        right_delay_group.setStyleSheet("""
+            QGroupBox {
+                border: 1px solid #3A3A3A;
+                border-radius: 5px;
+                margin-top: 8px;
+                padding-top: 8px;
+                background-color: #1E1E1E;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 8px;
+                padding: 0 3px 0 3px;
+                color: #C0C0C0;
+            }
+        """)
+        right_delay_layout = QVBoxLayout()
+        right_delay_layout.setSpacing(10)
+        
+        # Taps in organized grid - match synthesis spacing
+        right_taps_layout = QGridLayout()
+        right_taps_layout.setSpacing(10)
+        
+        # Headers
+        time_header_r = QLabel("Time (ms)")
+        time_header_r.setStyleSheet("color: #D4BF8A; font-weight: bold;")
+        time_header_r.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        right_taps_layout.addWidget(time_header_r, 0, 1)
+        
+        level_header_r = QLabel("Level")
+        level_header_r.setStyleSheet("color: #D4BF8A; font-weight: bold;")
+        level_header_r.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        right_taps_layout.addWidget(level_header_r, 0, 2)
+        
+        # Tap 1
+        tap1_label_r = QLabel("Tap 1:")
+        tap1_label_r.setStyleSheet("color: #E0E0E0;")
+        right_taps_layout.addWidget(tap1_label_r, 1, 0)
+        
+        self.delay_R_tap1_time = LabeledKnob("T1", 0, 2000, 150, midi_cc=88)
+        self.delay_R_tap1_time.valueChanged.connect(self.on_delay_R_tap1_time_change)
+        self.delay_R_tap1_time.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap1_time, 1, 1)
+        
+        self.delay_R_tap1_level = LabeledKnob("L1", 0, 1, 0.3, midi_cc=89)
+        self.delay_R_tap1_level.valueChanged.connect(self.on_delay_R_tap1_level_change)
+        self.delay_R_tap1_level.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap1_level, 1, 2)
+        
+        # Tap 2
+        tap2_label_r = QLabel("Tap 2:")
+        tap2_label_r.setStyleSheet("color: #E0E0E0;")
+        right_taps_layout.addWidget(tap2_label_r, 2, 0)
+        
+        self.delay_R_tap2_time = LabeledKnob("T2", 0, 2000, 300, midi_cc=90)
+        self.delay_R_tap2_time.valueChanged.connect(self.on_delay_R_tap2_time_change)
+        self.delay_R_tap2_time.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap2_time, 2, 1)
+        
+        self.delay_R_tap2_level = LabeledKnob("L2", 0, 1, 0.2, midi_cc=91)
+        self.delay_R_tap2_level.valueChanged.connect(self.on_delay_R_tap2_level_change)
+        self.delay_R_tap2_level.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap2_level, 2, 2)
+        
+        # Tap 3
+        tap3_label_r = QLabel("Tap 3:")
+        tap3_label_r.setStyleSheet("color: #E0E0E0;")
+        right_taps_layout.addWidget(tap3_label_r, 3, 0)
+        
+        self.delay_R_tap3_time = LabeledKnob("T3", 0, 2000, 600, midi_cc=92)
+        self.delay_R_tap3_time.valueChanged.connect(self.on_delay_R_tap3_time_change)
+        self.delay_R_tap3_time.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap3_time, 3, 1)
+        
+        self.delay_R_tap3_level = LabeledKnob("L3", 0, 1, 0.1, midi_cc=93)
+        self.delay_R_tap3_level.valueChanged.connect(self.on_delay_R_tap3_level_change)
+        self.delay_R_tap3_level.setFixedSize(70, 100)  # Match synthesis knob size
+        right_taps_layout.addWidget(self.delay_R_tap3_level, 3, 2)
+        
+        right_delay_layout.addLayout(right_taps_layout)
+        
+        # Feedback and Mix controls - match synthesis spacing
+        right_controls_layout = QHBoxLayout()
+        right_controls_layout.setSpacing(10)
+        
+        self.delay_R_feedback = LabeledKnob("FB", 0, 0.95, 0.2, midi_cc=94)
+        self.delay_R_feedback.valueChanged.connect(self.on_delay_R_feedback_change)
+        self.delay_R_feedback.setFixedSize(70, 100)  # Match synthesis knob size
+        right_controls_layout.addWidget(self.delay_R_feedback)
+        
+        self.delay_R_mix = LabeledKnob("Mix", 0, 1, 0.3, midi_cc=95)
+        self.delay_R_mix.valueChanged.connect(self.on_delay_R_mix_change)
+        self.delay_R_mix.setFixedSize(70, 100)  # Match synthesis knob size
+        right_controls_layout.addWidget(self.delay_R_mix)
+        
+        right_controls_layout.addStretch()
+        right_delay_layout.addLayout(right_controls_layout)
+        right_delay_group.setLayout(right_delay_layout)
+        channels_layout.addWidget(right_delay_group)
+        
+        layout.addLayout(channels_layout)
+
     def _get_combo_style(self):
         """Get combo box stylesheet"""
         return """
@@ -460,6 +779,29 @@ class MurnauUI(QMainWindow):
         self.send_osc("/start_freq_offset", 0)
         self.send_osc("/end_freq_offset", 0)
         self.send_osc("/ramp_time", 0)
+
+        # Initialize delay controls
+        # Left channel delays (disabled by default)
+        self.send_osc("/delay_L_enable", 0)
+        self.send_osc("/delay_L_tap1_time", 125)
+        self.send_osc("/delay_L_tap1_level", 0.3)
+        self.send_osc("/delay_L_tap2_time", 250)
+        self.send_osc("/delay_L_tap2_level", 0.2)
+        self.send_osc("/delay_L_tap3_time", 500)
+        self.send_osc("/delay_L_tap3_level", 0.1)
+        self.send_osc("/delay_L_feedback", 0.2)
+        self.send_osc("/delay_L_mix", 0.3)
+
+        # Right channel delays (disabled by default)
+        self.send_osc("/delay_R_enable", 0)
+        self.send_osc("/delay_R_tap1_time", 150)
+        self.send_osc("/delay_R_tap1_level", 0.3)
+        self.send_osc("/delay_R_tap2_time", 300)
+        self.send_osc("/delay_R_tap2_level", 0.2)
+        self.send_osc("/delay_R_tap3_time", 600)
+        self.send_osc("/delay_R_tap3_level", 0.1)
+        self.send_osc("/delay_R_feedback", 0.2)
+        self.send_osc("/delay_R_mix", 0.3)
 
     def on_start_freq_change(self):
         """Handle start frequency offset change"""
@@ -684,6 +1026,40 @@ class MurnauUI(QMainWindow):
         elif cc == self.resonance_knob_R.midi_cc:
             self.resonance_knob_R.set_from_midi_cc(value)
 
+        # Delay controls
+        elif cc == self.delay_L_tap1_time.midi_cc:
+            self.delay_L_tap1_time.set_from_midi_cc(value)
+        elif cc == self.delay_L_tap1_level.midi_cc:
+            self.delay_L_tap1_level.set_from_midi_cc(value)
+        elif cc == self.delay_L_tap2_time.midi_cc:
+            self.delay_L_tap2_time.set_from_midi_cc(value)
+        elif cc == self.delay_L_tap2_level.midi_cc:
+            self.delay_L_tap2_level.set_from_midi_cc(value)
+        elif cc == self.delay_L_tap3_time.midi_cc:
+            self.delay_L_tap3_time.set_from_midi_cc(value)
+        elif cc == self.delay_L_tap3_level.midi_cc:
+            self.delay_L_tap3_level.set_from_midi_cc(value)
+        elif cc == self.delay_L_feedback.midi_cc:
+            self.delay_L_feedback.set_from_midi_cc(value)
+        elif cc == self.delay_L_mix.midi_cc:
+            self.delay_L_mix.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap1_time.midi_cc:
+            self.delay_R_tap1_time.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap1_level.midi_cc:
+            self.delay_R_tap1_level.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap2_time.midi_cc:
+            self.delay_R_tap2_time.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap2_level.midi_cc:
+            self.delay_R_tap2_level.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap3_time.midi_cc:
+            self.delay_R_tap3_time.set_from_midi_cc(value)
+        elif cc == self.delay_R_tap3_level.midi_cc:
+            self.delay_R_tap3_level.set_from_midi_cc(value)
+        elif cc == self.delay_R_feedback.midi_cc:
+            self.delay_R_feedback.set_from_midi_cc(value)
+        elif cc == self.delay_R_mix.midi_cc:
+            self.delay_R_mix.set_from_midi_cc(value)
+
     def on_gain_change(self, value):
         """Handle gain change"""
         self.send_osc("/gain", value)
@@ -751,6 +1127,78 @@ class MurnauUI(QMainWindow):
     def on_stability_change(self, value):
         """Handle stability change"""
         self.send_osc("/stability", value)
+
+    def on_delay_L_enable_change(self, state):
+        """Handle left channel delay enable change"""
+        self.send_osc("/delay_L_enable", 1 if state else 0)
+
+    def on_delay_L_tap1_time_change(self, value):
+        """Handle left channel tap 1 time change"""
+        self.send_osc("/delay_L_tap1_time", value)
+
+    def on_delay_L_tap1_level_change(self, value):
+        """Handle left channel tap 1 level change"""
+        self.send_osc("/delay_L_tap1_level", value)
+
+    def on_delay_L_tap2_time_change(self, value):
+        """Handle left channel tap 2 time change"""
+        self.send_osc("/delay_L_tap2_time", value)
+
+    def on_delay_L_tap2_level_change(self, value):
+        """Handle left channel tap 2 level change"""
+        self.send_osc("/delay_L_tap2_level", value)
+
+    def on_delay_L_tap3_time_change(self, value):
+        """Handle left channel tap 3 time change"""
+        self.send_osc("/delay_L_tap3_time", value)
+
+    def on_delay_L_tap3_level_change(self, value):
+        """Handle left channel tap 3 level change"""
+        self.send_osc("/delay_L_tap3_level", value)
+
+    def on_delay_L_feedback_change(self, value):
+        """Handle left channel feedback change"""
+        self.send_osc("/delay_L_feedback", value)
+
+    def on_delay_L_mix_change(self, value):
+        """Handle left channel mix change"""
+        self.send_osc("/delay_L_mix", value)
+
+    def on_delay_R_enable_change(self, state):
+        """Handle right channel delay enable change"""
+        self.send_osc("/delay_R_enable", 1 if state else 0)
+
+    def on_delay_R_tap1_time_change(self, value):
+        """Handle right channel tap 1 time change"""
+        self.send_osc("/delay_R_tap1_time", value)
+
+    def on_delay_R_tap1_level_change(self, value):
+        """Handle right channel tap 1 level change"""
+        self.send_osc("/delay_R_tap1_level", value)
+
+    def on_delay_R_tap2_time_change(self, value):
+        """Handle right channel tap 2 time change"""
+        self.send_osc("/delay_R_tap2_time", value)
+
+    def on_delay_R_tap2_level_change(self, value):
+        """Handle right channel tap 2 level change"""
+        self.send_osc("/delay_R_tap2_level", value)
+
+    def on_delay_R_tap3_time_change(self, value):
+        """Handle right channel tap 3 time change"""
+        self.send_osc("/delay_R_tap3_time", value)
+
+    def on_delay_R_tap3_level_change(self, value):
+        """Handle right channel tap 3 level change"""
+        self.send_osc("/delay_R_tap3_level", value)
+
+    def on_delay_R_feedback_change(self, value):
+        """Handle right channel feedback change"""
+        self.send_osc("/delay_R_feedback", value)
+
+    def on_delay_R_mix_change(self, value):
+        """Handle right channel mix change"""
+        self.send_osc("/delay_R_mix", value)
 
     def send_osc(self, address, value):
         """Send OSC message"""

@@ -80,8 +80,75 @@ resR    = hslider("resonance_R[osc:/resonance_R]", 0.5, 0.1, 4, 0.01);
 sigL = osc_L : fi.resonlp(cutoffL, resL, 1.0) : fi.resonlp(cutoffL, resL, 1.0);
 sigR = osc_R : fi.resonlp(cutoffR, resR, 1.0) : fi.resonlp(cutoffR, resR, 1.0);
 
+// === Delay Controls (Left Channel) ===
+delay_L_enable = checkbox("delay_L_enable[osc:/delay_L_enable]");
+delay_L_tap1_time = hslider("delay_L_tap1_time[osc:/delay_L_tap1_time]", 125, 0, 2000, 1);
+delay_L_tap1_level = hslider("delay_L_tap1_level[osc:/delay_L_tap1_level]", 0.3, 0, 1, 0.01);
+delay_L_tap2_time = hslider("delay_L_tap2_time[osc:/delay_L_tap2_time]", 250, 0, 2000, 1);
+delay_L_tap2_level = hslider("delay_L_tap2_level[osc:/delay_L_tap2_level]", 0.2, 0, 1, 0.01);
+delay_L_tap3_time = hslider("delay_L_tap3_time[osc:/delay_L_tap3_time]", 500, 0, 2000, 1);
+delay_L_tap3_level = hslider("delay_L_tap3_level[osc:/delay_L_tap3_level]", 0.1, 0, 1, 0.01);
+delay_L_feedback = hslider("delay_L_feedback[osc:/delay_L_feedback]", 0.2, 0, 0.95, 0.01);
+delay_L_mix = hslider("delay_L_mix[osc:/delay_L_mix]", 0.3, 0, 1, 0.01);
+
+// === Delay Controls (Right Channel) ===
+delay_R_enable = checkbox("delay_R_enable[osc:/delay_R_enable]");
+delay_R_tap1_time = hslider("delay_R_tap1_time[osc:/delay_R_tap1_time]", 150, 0, 2000, 1);
+delay_R_tap1_level = hslider("delay_R_tap1_level[osc:/delay_R_tap1_level]", 0.3, 0, 1, 0.01);
+delay_R_tap2_time = hslider("delay_R_tap2_time[osc:/delay_R_tap2_time]", 300, 0, 2000, 1);
+delay_R_tap2_level = hslider("delay_R_tap2_level[osc:/delay_R_tap2_level]", 0.2, 0, 1, 0.01);
+delay_R_tap3_time = hslider("delay_R_tap3_time[osc:/delay_R_tap3_time]", 600, 0, 2000, 1);
+delay_R_tap3_level = hslider("delay_R_tap3_level[osc:/delay_R_tap3_level]", 0.1, 0, 1, 0.01);
+delay_R_feedback = hslider("delay_R_feedback[osc:/delay_R_feedback]", 0.2, 0, 0.95, 0.01);
+delay_R_mix = hslider("delay_R_mix[osc:/delay_R_mix]", 0.3, 0, 1, 0.01);
+
+// === Delay Implementation ===
+// Convert milliseconds to samples
+ms_to_samples(ms) = ms * ma.SR / 1000;
+max_delay_samples = ms_to_samples(2000);
+
+// Left channel delay processing (basic 3-tap, no feedback for now)
+delay_L_process(input) = output_L
+with {
+    // Three taps using @ operator for delays
+    tap1_L = input : @(ms_to_samples(delay_L_tap1_time)) : *(delay_L_tap1_level);
+    tap2_L = input : @(ms_to_samples(delay_L_tap2_time)) : *(delay_L_tap2_level);
+    tap3_L = input : @(ms_to_samples(delay_L_tap3_time)) : *(delay_L_tap3_level);
+    
+    // Sum taps
+    taps_sum_L = tap1_L + tap2_L + tap3_L;
+    
+    // Dry/wet mix
+    output_L = select2(delay_L_enable,
+        input,  // Bypass when disabled
+        input * (1 - delay_L_mix) + taps_sum_L * delay_L_mix
+    );
+};
+
+// Right channel delay processing (basic 3-tap, no feedback for now)
+delay_R_process(input) = output_R
+with {
+    // Three taps using @ operator for delays
+    tap1_R = input : @(ms_to_samples(delay_R_tap1_time)) : *(delay_R_tap1_level);
+    tap2_R = input : @(ms_to_samples(delay_R_tap2_time)) : *(delay_R_tap2_level);
+    tap3_R = input : @(ms_to_samples(delay_R_tap3_time)) : *(delay_R_tap3_level);
+    
+    // Sum taps
+    taps_sum_R = tap1_R + tap2_R + tap3_R;
+    
+    // Dry/wet mix
+    output_R = select2(delay_R_enable,
+        input,  // Bypass when disabled
+        input * (1 - delay_R_mix) + taps_sum_R * delay_R_mix
+    );
+};
+
+// Apply delays to filtered signals
+delayed_sigL = sigL : delay_L_process;
+delayed_sigR = sigR : delay_R_process;
+
 // === Gain Control ===
 gain = hslider("gain[osc:/gain]", 1.0, 0, 1, 0.01);
 
 // === Stereo Output ===
-process = sigL * gain, sigR * gain; 
+process = delayed_sigL * gain, delayed_sigR * gain; 
