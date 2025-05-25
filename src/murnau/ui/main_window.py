@@ -547,9 +547,9 @@ class MurnauUI(QMainWindow):
             # Update UI
             self.midi_toggle.setText("Disconnect MIDI")
             self.midi_toggle.setStyleSheet("color: #8AFF7A; background: transparent;")
-            self.statusBar().showMessage(
-                f"MIDI: Connected to {port_name} | OSC: {self.synth_name} on {self.osc_ip}:{self.osc_port}"
-            )
+            midi_msg = f"MIDI: Connected to {port_name}"
+            osc_msg = f"OSC: {self.synth_name} on {self.osc_ip}:{self.osc_port}"
+            self.statusBar().showMessage(f"{midi_msg} | {osc_msg}")
 
         except Exception as e:
             self.midi_toggle.setText(f"Error: {str(e)}")
