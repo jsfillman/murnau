@@ -834,9 +834,23 @@ class MurnauUI(QMainWindow):
         # Clear current items
         self.midi_port_combo.clear()
 
-        # Get available ports
+        # Get available ports with error handling
         try:
-            ports = mido.get_input_names()
+            # Try different backends to avoid API_UNSPECIFIED issues
+            backends_to_try = ['mido.backends.pygame', 'mido.backends.rtmidi']
+            
+            for backend in backends_to_try:
+                try:
+                    mido.set_backend(backend)
+                    ports = mido.get_input_names()
+                    break
+                except Exception as e:
+                    print(f"Backend {backend} failed: {e}")
+                    continue
+            else:
+                # If all backends fail, try default
+                ports = mido.get_input_names()
+            
             if ports:
                 self.midi_port_combo.addItems(ports)
 
@@ -847,12 +861,36 @@ class MurnauUI(QMainWindow):
             else:
                 self.midi_port_combo.addItem("No MIDI devices found")
         except Exception as e:
-            self.midi_port_combo.addItem(f"Error: {str(e)}")
+            print(f"MIDI initialization error: {e}")
+            self.midi_port_combo.addItem("MIDI unavailable (backend error)")
 
     def init_midi(self):
-        """Initialize MIDI processing"""
-        # To be initialized when user connects
-        pass
+        """Initialize MIDI processing with error handling"""
+        try:
+            # Try different backends to avoid API_UNSPECIFIED issues
+            backends_to_try = ['mido.backends.pygame', 'mido.backends.rtmidi']
+            
+            for backend in backends_to_try:
+                try:
+                    mido.set_backend(backend)
+                    mido.get_input_names()
+                    print(f"Successfully initialized MIDI with backend: {backend}")
+                    break
+                except Exception as e:
+                    print(f"Backend {backend} failed: {e}")
+                    continue
+            else:
+                # If all backends fail, try default
+                mido.get_input_names()
+                print("Successfully initialized MIDI with default backend")
+                
+        except Exception as e:
+            print(f"MIDI backend error: {e}")
+            print("MIDI functionality will be disabled")
+            # Disable MIDI toggle button
+            self.midi_toggle.setEnabled(False)
+            self.midi_toggle.setText("MIDI Unavailable")
+            self.midi_toggle.setStyleSheet("color: #888888; background: transparent;")
 
     def toggle_midi(self):
         """Toggle MIDI connection on/off"""
@@ -862,7 +900,7 @@ class MurnauUI(QMainWindow):
             self.stop_midi()
 
     def start_midi(self):
-        """Start MIDI processing"""
+        """Start MIDI processing with error handling"""
         if self.midi_running:
             return
 
@@ -872,6 +910,7 @@ class MurnauUI(QMainWindow):
             not port_name
             or port_name.startswith("No MIDI")
             or port_name.startswith("Error")
+            or port_name.startswith("MIDI unavailable")
         ):
             self.midi_toggle.setText("Error: No valid MIDI port selected")
             self.midi_toggle.setStyleSheet("color: #FF5555; background: transparent;")

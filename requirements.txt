@@ -4,6 +4,7 @@ PyQt6>=6.0.0
 
 # MIDI Support
 mido>=1.2.0
+rtmidi
 
 # OSC Communication
 python-osc>=1.7.0
