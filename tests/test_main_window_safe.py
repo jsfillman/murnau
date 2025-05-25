@@ -187,8 +187,9 @@ class TestMurnauUIMethodsIsolated:
     @patch("src.murnau.ui.main_window.udp_client.SimpleUDPClient")
     def test_close_event_handler(self, mock_udp_client):
         """Test close event handler logic"""
-        from src.murnau.ui.main_window import MurnauUI
         from PyQt6.QtGui import QCloseEvent
+
+        from src.murnau.ui.main_window import MurnauUI
 
         # Create minimal instance
         window = MurnauUI.__new__(MurnauUI)
