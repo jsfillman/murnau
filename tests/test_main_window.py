@@ -2,17 +2,15 @@
 
 import os
 import sys
-import threading
-from unittest.mock import MagicMock, Mock, patch
-
-import pytest
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QCloseEvent, QKeyEvent
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtTest import QTest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.murnau.ui.main_window import MurnauUI
+
+from unittest.mock import Mock, patch  # noqa: E402
+
+import pytest  # noqa: E402
+from PyQt6.QtGui import QCloseEvent  # noqa: E402
+
+from src.murnau.ui.main_window import MurnauUI  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -25,10 +23,14 @@ def disable_qt_animations():
 class TestMurnauUIInit:
     """Test MurnauUI initialization"""
 
-    @patch("src.murnau.ui.main_window.QTimer")  # Mock QTimer to prevent animation issues
+    @patch(
+        "src.murnau.ui.main_window.QTimer"
+    )  # Mock QTimer to prevent animation issues
     @patch("src.murnau.ui.main_window.mido.get_input_names")  # Mock MIDI
     @patch("src.murnau.ui.main_window.udp_client.SimpleUDPClient")
-    def test_init_creates_osc_client(self, mock_udp_client, mock_midi, mock_timer, qtbot):
+    def test_init_creates_osc_client(
+        self, mock_udp_client, mock_midi, mock_timer, qtbot
+    ):
         """Test that initialization creates OSC client with correct parameters"""
         mock_client = Mock()
         mock_udp_client.return_value = mock_client
@@ -38,7 +40,7 @@ class TestMurnauUIInit:
 
         window = MurnauUI()
         qtbot.addWidget(window)
-        
+
         # Clean up immediately
         window.close()
         qtbot.wait(10)  # Small wait for cleanup
