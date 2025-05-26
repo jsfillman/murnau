@@ -121,24 +121,34 @@ fi
 # Step 2: Compile and start the Faust synthesizer
 echo -e "${BLUE}Compiling Faust synthesizer...${NC}"
 
-# The DSP file should be in the root directory for compilation
-# (Source code is maintained in src/murnau/dsp/)
-if [ ! -f "legato_synth.dsp" ]; then
-    echo -e "${RED}Error: legato_synth.dsp not found in current directory.${NC}"
-    echo -e "${YELLOW}Note: The DSP source is in src/murnau/dsp/${NC}"
+# The DSP file is now in src/murnau/dsp/
+DSP_FILE="src/murnau/dsp/legato_synth.dsp"
+if [ ! -f "$DSP_FILE" ]; then
+    echo -e "${RED}Error: $DSP_FILE not found.${NC}"
     exit 1
 fi
 
 # Create build directory if it doesn't exist
 mkdir -p build
 
-# Compile the Faust DSP to build directory
-faust2jackconsole -osc legato_synth.dsp -o build/legato_synth || {
+# Compile the Faust DSP (faust2jackconsole creates binary in source directory)
+faust2jackconsole -osc "$DSP_FILE" || {
     echo -e "${RED}Failed to compile Faust synthesizer.${NC}"
     exit 1
 }
 
-echo -e "${GREEN}Synthesizer compiled successfully.${NC}"
+# Move the compiled binary to build directory
+BINARY_NAME="legato_synth"
+SOURCE_BINARY="src/murnau/dsp/$BINARY_NAME"
+TARGET_BINARY="build/$BINARY_NAME"
+
+if [ -f "$SOURCE_BINARY" ]; then
+    mv "$SOURCE_BINARY" "$TARGET_BINARY"
+    echo -e "${GREEN}Synthesizer compiled and moved to build/ successfully.${NC}"
+else
+    echo -e "${RED}Compiled binary not found at expected location: $SOURCE_BINARY${NC}"
+    exit 1
+fi
 
 # Start the synthesizer
 echo -e "${BLUE}Starting synthesizer...${NC}"

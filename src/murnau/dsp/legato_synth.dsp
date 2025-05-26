@@ -18,17 +18,27 @@ start_freq_offset = hslider("start_freq_offset[osc:/start_freq_offset]", 0, -200
 end_freq_offset = hslider("end_freq_offset[osc:/end_freq_offset]", 0, -200, 200, 1);
 ramp_time = hslider("ramp_time[osc:/ramp_time]", 0, 0, 10, 0.01);
 
-// Create ramp when gate triggers
-ramp = gate : ba.impulsify : en.ar(ramp_time, 0.001);
-freq_offset_ramp = start_freq_offset + (end_freq_offset - start_freq_offset) * ramp;
+// Simple ramping using integrator
+// When gate is on, accumulate time; when gate triggers, reset to 0
+gate_trigger = gate : ba.impulsify;
+time_step = 1.0 / ma.SR;  // Time per sample
+
+// Accumulate time while gate is on, reset on gate trigger
+elapsed_time = (gate * time_step) : (+ : *(1 - gate_trigger)) ~ _;
+
+// Convert to progress (0 to 1) over ramp_time
+ramp_progress = min(1.0, elapsed_time / max(0.001, ramp_time));
+
+// Interpolate between start and end offsets
+freq_offset_ramp = start_freq_offset + (end_freq_offset - start_freq_offset) * ramp_progress;
 
 // === Pitch Instability ===
 random_stability  = gate : ba.sAndH(no.noise * 2 - 1) * stability;
 cents_offset      = fine_tune + random_stability;
 semitones_offset  = coarse_tune + (cents_offset * 0.01);
 
-// Final frequency calculation - apply freq_offset_ramp if ramp_time > 0
-freq = base_freq + ((ramp_time > 0) * freq_offset_ramp);
+// Final frequency calculation - always apply freq_offset_ramp
+freq = base_freq + freq_offset_ramp;
 freq_with_tuning = freq * pow(2, semitones_offset / 12);
 
 // === Envelope Controls (Dual) ===
@@ -74,4 +84,4 @@ sigR = osc_R : fi.resonlp(cutoffR, resR, 1.0) : fi.resonlp(cutoffR, resR, 1.0);
 gain = hslider("gain[osc:/gain]", 1.0, 0, 1, 0.01);
 
 // === Stereo Output ===
-process = sigL * gain, sigR * gain;
+process = sigL * gain, sigR * gain; 
