@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 import pytest
 
 
@@ -19,8 +20,8 @@ def pytest_collection_modifyitems(config, items):
     """Modify test collection to handle PyQt6 import issues"""
     # Check if PyQt6 is available and working
     try:
-        from PyQt6.QtWidgets import QApplication
         from PyQt6.QtCore import QTimer
+        from PyQt6.QtWidgets import QApplication
 
         # Try to create a QApplication to test if display is available
         app = QApplication.instance()

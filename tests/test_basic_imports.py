@@ -18,7 +18,7 @@ class TestBasicImports:
 
     def test_dsp_module_import(self):
         """Test that DSP module can be imported"""
-        from src.murnau.dsp import get_dsp_path, DSP_FILES
+        from src.murnau.dsp import DSP_FILES, get_dsp_path
 
         assert callable(get_dsp_path)
         assert isinstance(DSP_FILES, dict)
