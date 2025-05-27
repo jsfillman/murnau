@@ -8,10 +8,10 @@ import sys
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon, QPixmap  # noqa: E402
+from PyQt6.QtWidgets import QApplication  # noqa: E402
 
-from src.murnau.ui import MurnauUI
+from src.murnau.ui import MurnauUI  # noqa: E402
 
 
 def main():

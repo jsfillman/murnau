@@ -5,14 +5,12 @@ import os
 
 # Import the module under test
 import sys
-import time
 from unittest.mock import Mock, call, patch
 
 import pytest
-from pythonosc import udp_client
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.murnau.synth import melody
+from src.murnau.synth import melody  # noqa: E402
 
 
 class TestMidiToFreq:
@@ -276,17 +274,6 @@ class TestMelodyData:
 
     def test_melody_structure(self):
         """Test that the melody data has the expected structure"""
-        # Access the melody data by running the relevant part
-        expected_melody = [
-            (60, 0.5),  # C4
-            (64, 0.5),  # E4
-            (67, 0.5),  # G4
-            (72, 1.0),  # C5
-            (67, 0.5),  # G4
-            (64, 0.5),  # E4
-            (60, 1.0),  # C4
-        ]
-
         # We need to access the melody from the play_melody function context
         # Since it's defined within play_melody(), we test it indirectly through calls
         with patch("src.murnau.synth.melody.play_note") as mock_play_note, patch(

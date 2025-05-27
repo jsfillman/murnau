@@ -8,10 +8,9 @@ import time
 from unittest.mock import Mock, call, patch
 
 import pytest
-from pythonosc import udp_client
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.murnau.synth import ramp_test
+from src.murnau.synth import ramp_test  # noqa: E402
 
 
 class TestTestRamp:
@@ -45,12 +44,6 @@ class TestTestRamp:
 
         # Verify test scenarios were processed
         # Should have 4 test scenarios based on the tests list
-        expected_test_scenarios = [
-            (220, 880, 2.0, 0.5),
-            (880, 220, 2.0, 0.5),
-            (440, 880, 0.5, 0.5),
-            (880, 440, 0.5, 0.5),
-        ]
 
         # Count gate on/off calls (should be 4 pairs)
         gate_on_calls = [

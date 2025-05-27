@@ -37,7 +37,9 @@ def test_ramp(
     client.send_message(f"/{synth_name}/cutoff_R", 5000)
 
     for start_freq, end_freq, ramp_time, hold_time in tests:
-        print(f"\nTesting ramp from {start_freq}Hz to {end_freq}Hz over {ramp_time}s")
+        print(
+            f"\nTesting ramp from {start_freq}Hz to {end_freq}Hz " f"over {ramp_time}s"
+        )
 
         # Set ramp parameters
         client.send_message(f"/{synth_name}/start_freq", start_freq)
