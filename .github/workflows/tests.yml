@@ -24,7 +24,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y jackd2 jackd2-firewire libjack-jackd2-dev
+        sudo apt-get install -y jackd2 jackd2-firewire libjack-jackd2-dev xvfb
         # Configure JACK to use dummy driver for CI
         sudo usermod -a -G audio $USER
 
@@ -48,8 +48,15 @@ jobs:
         sleep 2
 
     - name: Run tests with coverage
+      env:
+        QT_QPA_PLATFORM: offscreen
+        DISPLAY: ":99"
       run: |
-        pytest tests/test_melody.py tests/test_ramp_test.py tests/test_osc_client.py tests/test_utils_init.py --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=20
+        # Start virtual display for PyQt6 tests
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+        # Run all tests
+        pytest tests/ --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=20
 
 
     - name: Upload coverage to Codecov

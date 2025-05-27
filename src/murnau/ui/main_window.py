@@ -64,7 +64,7 @@ class MurnauUI(QMainWindow):
         self.show()
 
         # Set focus to piano keys (only if piano widget exists)
-        if hasattr(self, 'piano') and self.piano:
+        if hasattr(self, "piano") and self.piano:
             self.piano.setFocus()
 
         # Start animation effects
@@ -120,10 +120,11 @@ class MurnauUI(QMainWindow):
 
         # Right side - Controls in tabs
         right_section = QVBoxLayout()
-        
+
         # Create tab widget for controls
         control_tabs = QTabWidget()
-        control_tabs.setStyleSheet("""
+        control_tabs.setStyleSheet(
+            """
             QTabWidget::pane {
                 border: 1px solid #3A3A3A;
                 background-color: #1A1A1A;
@@ -144,7 +145,8 @@ class MurnauUI(QMainWindow):
             QTabBar::tab:hover {
                 background-color: #3A3A3A;
             }
-        """)
+        """
+        )
 
         # Tab 1: Synthesis (Pitch + Filter + ADSR)
         synth_tab = QWidget()
@@ -181,7 +183,8 @@ class MurnauUI(QMainWindow):
 
         # Delay section with better organization
         delay_group = QGroupBox("3-Tap Delay")
-        delay_group.setStyleSheet("""
+        delay_group.setStyleSheet(
+            """
             QGroupBox {
                 font-weight: bold;
                 border: 2px solid #5D5236;
@@ -195,14 +198,15 @@ class MurnauUI(QMainWindow):
                 padding: 0 5px 0 5px;
                 color: #D4BF8A;
             }
-        """)
+        """
+        )
         delay_layout = QVBoxLayout()
         delay_layout.setSpacing(8)
         delay_layout.setContentsMargins(10, 10, 10, 10)
         self._create_delay_controls(delay_layout)
         delay_group.setLayout(delay_layout)
         effects_layout.addWidget(delay_group)
-        
+
         # Reduce stretch to minimize blank space
         effects_layout.addStretch(1)
 
@@ -210,7 +214,7 @@ class MurnauUI(QMainWindow):
 
         # Add tabs to right section
         right_section.addWidget(control_tabs)
-        
+
         # Gain knob - always visible
         gain_group = QGroupBox("Output")
         gain_layout = QHBoxLayout()
@@ -242,7 +246,7 @@ class MurnauUI(QMainWindow):
 
         # Set window size - optimized for both Synthesis and Effects tabs
         self.resize(1250, 960)
-        
+
         # Set minimum size to ensure usability
         self.setMinimumSize(1200, 650)
 
@@ -432,9 +436,10 @@ class MurnauUI(QMainWindow):
         # Master enable controls - match synthesis spacing
         enable_layout = QHBoxLayout()
         enable_layout.setSpacing(50)
-        
+
         self.delay_L_enable = QCheckBox("Enable Left")
-        self.delay_L_enable.setStyleSheet("""
+        self.delay_L_enable.setStyleSheet(
+            """
             QCheckBox {
                 color: #E0E0E0;
                 font-weight: bold;
@@ -449,12 +454,14 @@ class MurnauUI(QMainWindow):
                 background-color: #5D5236;
                 border: 2px solid #D4BF8A;
             }
-        """)
+        """
+        )
         self.delay_L_enable.stateChanged.connect(self.on_delay_L_enable_change)
         enable_layout.addWidget(self.delay_L_enable)
-        
+
         self.delay_R_enable = QCheckBox("Enable Right")
-        self.delay_R_enable.setStyleSheet("""
+        self.delay_R_enable.setStyleSheet(
+            """
             QCheckBox {
                 color: #E0E0E0;
                 font-weight: bold;
@@ -469,20 +476,22 @@ class MurnauUI(QMainWindow):
                 background-color: #5D5236;
                 border: 2px solid #D4BF8A;
             }
-        """)
+        """
+        )
         self.delay_R_enable.stateChanged.connect(self.on_delay_R_enable_change)
         enable_layout.addWidget(self.delay_R_enable)
-        
+
         enable_layout.addStretch()
         layout.addLayout(enable_layout)
-        
+
         # Channel controls side by side - match synthesis spacing
         channels_layout = QHBoxLayout()
         channels_layout.setSpacing(20)
-        
+
         # Left channel delay
         left_delay_group = QGroupBox("Left Channel")
-        left_delay_group.setStyleSheet("""
+        left_delay_group.setStyleSheet(
+            """
             QGroupBox {
                 border: 1px solid #3A3A3A;
                 border-radius: 5px;
@@ -496,94 +505,96 @@ class MurnauUI(QMainWindow):
                 padding: 0 3px 0 3px;
                 color: #C0C0C0;
             }
-        """)
+        """
+        )
         left_delay_layout = QVBoxLayout()
         left_delay_layout.setSpacing(10)
-        
+
         # Taps in organized grid - match synthesis spacing
         left_taps_layout = QGridLayout()
         left_taps_layout.setSpacing(10)
-        
+
         # Headers
         time_header = QLabel("Time (ms)")
         time_header.setStyleSheet("color: #D4BF8A; font-weight: bold;")
         time_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         left_taps_layout.addWidget(time_header, 0, 1)
-        
+
         level_header = QLabel("Level")
         level_header.setStyleSheet("color: #D4BF8A; font-weight: bold;")
         level_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         left_taps_layout.addWidget(level_header, 0, 2)
-        
+
         # Tap 1
         tap1_label = QLabel("Tap 1:")
         tap1_label.setStyleSheet("color: #E0E0E0;")
         left_taps_layout.addWidget(tap1_label, 1, 0)
-        
+
         self.delay_L_tap1_time = LabeledKnob("T1", 0, 2000, 125, midi_cc=80)
         self.delay_L_tap1_time.valueChanged.connect(self.on_delay_L_tap1_time_change)
         self.delay_L_tap1_time.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap1_time, 1, 1)
-        
+
         self.delay_L_tap1_level = LabeledKnob("L1", 0, 1, 0.3, midi_cc=81)
         self.delay_L_tap1_level.valueChanged.connect(self.on_delay_L_tap1_level_change)
         self.delay_L_tap1_level.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap1_level, 1, 2)
-        
+
         # Tap 2
         tap2_label = QLabel("Tap 2:")
         tap2_label.setStyleSheet("color: #E0E0E0;")
         left_taps_layout.addWidget(tap2_label, 2, 0)
-        
+
         self.delay_L_tap2_time = LabeledKnob("T2", 0, 2000, 250, midi_cc=82)
         self.delay_L_tap2_time.valueChanged.connect(self.on_delay_L_tap2_time_change)
         self.delay_L_tap2_time.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap2_time, 2, 1)
-        
+
         self.delay_L_tap2_level = LabeledKnob("L2", 0, 1, 0.2, midi_cc=83)
         self.delay_L_tap2_level.valueChanged.connect(self.on_delay_L_tap2_level_change)
         self.delay_L_tap2_level.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap2_level, 2, 2)
-        
+
         # Tap 3
         tap3_label = QLabel("Tap 3:")
         tap3_label.setStyleSheet("color: #E0E0E0;")
         left_taps_layout.addWidget(tap3_label, 3, 0)
-        
+
         self.delay_L_tap3_time = LabeledKnob("T3", 0, 2000, 500, midi_cc=84)
         self.delay_L_tap3_time.valueChanged.connect(self.on_delay_L_tap3_time_change)
         self.delay_L_tap3_time.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap3_time, 3, 1)
-        
+
         self.delay_L_tap3_level = LabeledKnob("L3", 0, 1, 0.1, midi_cc=85)
         self.delay_L_tap3_level.valueChanged.connect(self.on_delay_L_tap3_level_change)
         self.delay_L_tap3_level.setFixedSize(70, 100)  # Match synthesis knob size
         left_taps_layout.addWidget(self.delay_L_tap3_level, 3, 2)
-        
+
         left_delay_layout.addLayout(left_taps_layout)
-        
+
         # Feedback and Mix controls - match synthesis spacing
         left_controls_layout = QHBoxLayout()
         left_controls_layout.setSpacing(10)
-        
+
         self.delay_L_feedback = LabeledKnob("FB", 0, 0.95, 0.2, midi_cc=86)
         self.delay_L_feedback.valueChanged.connect(self.on_delay_L_feedback_change)
         self.delay_L_feedback.setFixedSize(70, 100)  # Match synthesis knob size
         left_controls_layout.addWidget(self.delay_L_feedback)
-        
+
         self.delay_L_mix = LabeledKnob("Mix", 0, 1, 0.3, midi_cc=87)
         self.delay_L_mix.valueChanged.connect(self.on_delay_L_mix_change)
         self.delay_L_mix.setFixedSize(70, 100)  # Match synthesis knob size
         left_controls_layout.addWidget(self.delay_L_mix)
-        
+
         left_controls_layout.addStretch()
         left_delay_layout.addLayout(left_controls_layout)
         left_delay_group.setLayout(left_delay_layout)
         channels_layout.addWidget(left_delay_group)
-        
+
         # Right channel delay (similar structure)
         right_delay_group = QGroupBox("Right Channel")
-        right_delay_group.setStyleSheet("""
+        right_delay_group.setStyleSheet(
+            """
             QGroupBox {
                 border: 1px solid #3A3A3A;
                 border-radius: 5px;
@@ -597,91 +608,92 @@ class MurnauUI(QMainWindow):
                 padding: 0 3px 0 3px;
                 color: #C0C0C0;
             }
-        """)
+        """
+        )
         right_delay_layout = QVBoxLayout()
         right_delay_layout.setSpacing(10)
-        
+
         # Taps in organized grid - match synthesis spacing
         right_taps_layout = QGridLayout()
         right_taps_layout.setSpacing(10)
-        
+
         # Headers
         time_header_r = QLabel("Time (ms)")
         time_header_r.setStyleSheet("color: #D4BF8A; font-weight: bold;")
         time_header_r.setAlignment(Qt.AlignmentFlag.AlignCenter)
         right_taps_layout.addWidget(time_header_r, 0, 1)
-        
+
         level_header_r = QLabel("Level")
         level_header_r.setStyleSheet("color: #D4BF8A; font-weight: bold;")
         level_header_r.setAlignment(Qt.AlignmentFlag.AlignCenter)
         right_taps_layout.addWidget(level_header_r, 0, 2)
-        
+
         # Tap 1
         tap1_label_r = QLabel("Tap 1:")
         tap1_label_r.setStyleSheet("color: #E0E0E0;")
         right_taps_layout.addWidget(tap1_label_r, 1, 0)
-        
+
         self.delay_R_tap1_time = LabeledKnob("T1", 0, 2000, 150, midi_cc=88)
         self.delay_R_tap1_time.valueChanged.connect(self.on_delay_R_tap1_time_change)
         self.delay_R_tap1_time.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap1_time, 1, 1)
-        
+
         self.delay_R_tap1_level = LabeledKnob("L1", 0, 1, 0.3, midi_cc=89)
         self.delay_R_tap1_level.valueChanged.connect(self.on_delay_R_tap1_level_change)
         self.delay_R_tap1_level.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap1_level, 1, 2)
-        
+
         # Tap 2
         tap2_label_r = QLabel("Tap 2:")
         tap2_label_r.setStyleSheet("color: #E0E0E0;")
         right_taps_layout.addWidget(tap2_label_r, 2, 0)
-        
+
         self.delay_R_tap2_time = LabeledKnob("T2", 0, 2000, 300, midi_cc=90)
         self.delay_R_tap2_time.valueChanged.connect(self.on_delay_R_tap2_time_change)
         self.delay_R_tap2_time.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap2_time, 2, 1)
-        
+
         self.delay_R_tap2_level = LabeledKnob("L2", 0, 1, 0.2, midi_cc=91)
         self.delay_R_tap2_level.valueChanged.connect(self.on_delay_R_tap2_level_change)
         self.delay_R_tap2_level.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap2_level, 2, 2)
-        
+
         # Tap 3
         tap3_label_r = QLabel("Tap 3:")
         tap3_label_r.setStyleSheet("color: #E0E0E0;")
         right_taps_layout.addWidget(tap3_label_r, 3, 0)
-        
+
         self.delay_R_tap3_time = LabeledKnob("T3", 0, 2000, 600, midi_cc=92)
         self.delay_R_tap3_time.valueChanged.connect(self.on_delay_R_tap3_time_change)
         self.delay_R_tap3_time.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap3_time, 3, 1)
-        
+
         self.delay_R_tap3_level = LabeledKnob("L3", 0, 1, 0.1, midi_cc=93)
         self.delay_R_tap3_level.valueChanged.connect(self.on_delay_R_tap3_level_change)
         self.delay_R_tap3_level.setFixedSize(70, 100)  # Match synthesis knob size
         right_taps_layout.addWidget(self.delay_R_tap3_level, 3, 2)
-        
+
         right_delay_layout.addLayout(right_taps_layout)
-        
+
         # Feedback and Mix controls - match synthesis spacing
         right_controls_layout = QHBoxLayout()
         right_controls_layout.setSpacing(10)
-        
+
         self.delay_R_feedback = LabeledKnob("FB", 0, 0.95, 0.2, midi_cc=94)
         self.delay_R_feedback.valueChanged.connect(self.on_delay_R_feedback_change)
         self.delay_R_feedback.setFixedSize(70, 100)  # Match synthesis knob size
         right_controls_layout.addWidget(self.delay_R_feedback)
-        
+
         self.delay_R_mix = LabeledKnob("Mix", 0, 1, 0.3, midi_cc=95)
         self.delay_R_mix.valueChanged.connect(self.on_delay_R_mix_change)
         self.delay_R_mix.setFixedSize(70, 100)  # Match synthesis knob size
         right_controls_layout.addWidget(self.delay_R_mix)
-        
+
         right_controls_layout.addStretch()
         right_delay_layout.addLayout(right_controls_layout)
         right_delay_group.setLayout(right_delay_layout)
         channels_layout.addWidget(right_delay_group)
-        
+
         layout.addLayout(channels_layout)
 
     def _get_combo_style(self):
@@ -910,14 +922,21 @@ class MurnauUI(QMainWindow):
 
         # Update UI (only if UI elements exist)
         try:
-            if hasattr(self, 'midi_toggle') and self.midi_toggle:
+            if hasattr(self, "midi_toggle") and self.midi_toggle:
                 self.midi_toggle.setText("Connect MIDI")
-                self.midi_toggle.setStyleSheet("color: #8A7A55; background: transparent;")
+                self.midi_toggle.setStyleSheet(
+                    "color: #8A7A55; background: transparent;"
+                )
         except (RuntimeError, AttributeError):
             pass  # Ignore if UI not properly initialized
-        
+
         try:
-            if hasattr(self, 'statusBar') and hasattr(self, 'synth_name') and hasattr(self, 'osc_ip') and hasattr(self, 'osc_port'):
+            if (
+                hasattr(self, "statusBar")
+                and hasattr(self, "synth_name")
+                and hasattr(self, "osc_ip")
+                and hasattr(self, "osc_port")
+            ):
                 self.statusBar().showMessage(
                     f"OSC: {self.synth_name} on {self.osc_ip}:{self.osc_port}"
                 )
