@@ -13,27 +13,27 @@ from src.murnau.dsp import get_dsp_path  # noqa: E402
 class TestDSPInit:
     """Test DSP module initialization functions"""
 
-    @patch("src.murnau.dsp.os.path.join")
-    @patch("src.murnau.dsp.os.path.dirname")
+    @patch("os.path.join")
+    @patch("os.path.dirname")
     def test_get_dsp_path_valid_file(self, mock_dirname, mock_join):
         """Test getting DSP path for valid file"""
         mock_dirname.return_value = "/fake/dsp/dir"
-        mock_join.return_value = "/fake/dsp/dir/test.dsp"
+        mock_join.return_value = "/fake/dsp/dir/legato_synth.dsp"
 
-        result = get_dsp_path("test.dsp")
+        result = get_dsp_path("legato_synth")
 
         mock_dirname.assert_called_once()
-        mock_join.assert_called_once_with("/fake/dsp/dir", "test.dsp")
-        assert result == "/fake/dsp/dir/test.dsp"
+        mock_join.assert_called_once_with("/fake/dsp/dir", "legato_synth.dsp")
+        assert result == "/fake/dsp/dir/legato_synth.dsp"
 
-    @patch("src.murnau.dsp.os.path.join")
-    @patch("src.murnau.dsp.os.path.dirname")
+    @patch("os.path.join")
+    @patch("os.path.dirname")
     def test_get_dsp_path_legato_synth(self, mock_dirname, mock_join):
         """Test getting DSP path for legato_synth.dsp"""
         mock_dirname.return_value = "/fake/dsp/dir"
         mock_join.return_value = "/fake/dsp/dir/legato_synth.dsp"
 
-        result = get_dsp_path("legato_synth.dsp")
+        result = get_dsp_path("legato_synth")
 
         assert result == "/fake/dsp/dir/legato_synth.dsp"
 
@@ -44,6 +44,5 @@ class TestDSPInit:
 
     def test_get_dsp_path_empty_string(self):
         """Test get_dsp_path with empty string"""
-        result = get_dsp_path("")
-        # Should return a valid path even with empty string
-        assert isinstance(result, str)
+        with pytest.raises(ValueError):
+            get_dsp_path("")

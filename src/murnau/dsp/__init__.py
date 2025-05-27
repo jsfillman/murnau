@@ -8,7 +8,10 @@ written in Faust language that implement the synthesizer engine.
 # to make the directory a proper Python package and to document
 # the DSP resources available here.
 
-DSP_FILES = {"legato_synth": "legato_synth.dsp", "oscillator": "oscilator.faust"}
+DSP_FILES = {
+    "legato_synth": "legato_synth.dsp",
+    "oscillator": "oscilator.faust"
+}
 
 
 def get_dsp_path(name):
@@ -22,6 +25,9 @@ def get_dsp_path(name):
     """
     import os
 
+    if name is None:
+        raise TypeError("DSP file name cannot be None")
+    
     if name in DSP_FILES:
         return os.path.join(os.path.dirname(__file__), DSP_FILES[name])
     else:
