@@ -932,16 +932,18 @@ class MurnauUI(QMainWindow):
 
         try:
             if (
-                hasattr(self, "statusBar")
-                and hasattr(self, "synth_name")
-                and hasattr(self, "osc_ip")
-                and hasattr(self, "osc_port")
-            ):
-                self.statusBar().showMessage(
-                    f"OSC: {self.synth_name} on {self.osc_ip}:{self.osc_port}"
-                )
-        except (RuntimeError, AttributeError):
-            pass  # Ignore if statusBar doesn't exist or fails
+                if (
+                    hasattr(self, "statusBar")
+                    and hasattr(self, "synth_name")
+                    and hasattr(self, "osc_ip")
+                    and hasattr(self, "osc_port")
+                ):
+                    try:
+                        self.statusBar().showMessage(
+                            f"OSC: {self.synth_name} on {self.osc_ip}:{self.osc_port}"
+                        )
+                    except RuntimeError:
+                        pass  # Ignore if statusBar call fails
 
     def process_midi(self):
         """Process MIDI messages in a background thread"""
