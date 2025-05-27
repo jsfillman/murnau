@@ -2,15 +2,14 @@
 
 import math
 
-from PyQt6.QtCore import QSize, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter, QPalette, QPen
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter, QPen
 from PyQt6.QtWidgets import (
     QDial,
     QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -602,7 +601,6 @@ class PianoKeys(QWidget):
                 if prev_white >= 0 and next_white >= 0:
                     # Calculate position based on surrounding white keys
                     prev_index = white_keys.index(prev_white)
-                    next_index = white_keys.index(next_white)
 
                     x = int((prev_index + 0.7) * white_key_width)
                     y = 0

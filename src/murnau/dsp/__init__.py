@@ -22,6 +22,9 @@ def get_dsp_path(name):
     """
     import os
 
+    if name is None:
+        raise TypeError("DSP file name cannot be None")
+
     if name in DSP_FILES:
         return os.path.join(os.path.dirname(__file__), DSP_FILES[name])
     else:

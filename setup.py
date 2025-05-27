@@ -4,6 +4,7 @@
 from setuptools import setup, find_packages
 import os
 
+
 # Read the contents of the README file
 def read_long_description():
     try:
@@ -11,6 +12,7 @@ def read_long_description():
             return fh.read()
     except FileNotFoundError:
         return "Murnau - Cinematic Synthesizer Control Interface"
+
 
 setup(
     name="murnau",
