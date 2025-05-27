@@ -932,7 +932,7 @@ class MurnauUI(QMainWindow):
 
         try:
             if (
-                if (
+                
                     hasattr(self, "statusBar")
                     and hasattr(self, "synth_name")
                     and hasattr(self, "osc_ip")
